@@ -1,0 +1,115 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+
+  :root {
+    color-scheme: light;
+  }
+
+  html.dark {
+    color-scheme: dark;
+  }
+
+  body {
+    @apply bg-slate-50 text-slate-900 font-sans antialiased transition-colors duration-200;
+  }
+
+  html.dark body {
+    @apply bg-slate-950 text-slate-100;
+  }
+
+}
+
+/* Cards */
+
+.app-card {
+  @apply bg-white border border-slate-200 rounded-2xl shadow-sm transition-all duration-200;
+}
+
+html.dark .app-card {
+  @apply bg-slate-900 border-slate-700 shadow-none;
+}
+
+
+/* Glass Panels */
+
+.glass-panel {
+  @apply bg-white/90 border border-slate-200 backdrop-blur-md;
+}
+
+html.dark .glass-panel {
+  background: rgba(22, 31, 48, 0.75);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.glass-panel-hover {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-panel-hover:hover {
+  @apply transform -translate-y-0.5 shadow-md border-indigo-200;
+}
+
+html.dark .glass-panel-hover:hover {
+  background: rgba(30, 41, 64, 0.85);
+  border-color: rgba(99, 102, 241, 0.35);
+  box-shadow:
+    0 10px 25px -5px rgba(0, 0, 0, 0.5),
+    0 8px 10px -6px rgba(99, 102, 241, 0.1);
+}
+
+
+/* Custom Scrollbars */
+
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-slate-100;
+}
+
+html.dark ::-webkit-scrollbar-track {
+  background: #0B0F17;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-slate-300 rounded-full;
+}
+
+html.dark ::-webkit-scrollbar-thumb {
+  background: #1F293D;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-slate-400;
+}
+
+html.dark ::-webkit-scrollbar-thumb:hover {
+  background: #374151;
+}
+
+
+/* Pulse animation */
+
+@keyframes pulse-glow {
+
+  0%,
+  100% {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2.5s infinite;
+}

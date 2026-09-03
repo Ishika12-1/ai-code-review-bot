@@ -1,0 +1,38 @@
+name: "AI Code Review Bot"
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  ai-review:
+    name: "Automated AI Pull Request Review"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Get Changed Code Diff
+        id: pr_diff
+        run: |
+          git diff origin/${{ github.base_ref }}...origin/${{ github.head_ref }} > pr_diff.patch
+          echo "DIFF_FILE=pr_diff.patch" >> $GITHUB_OUTPUT
+
+      - name: Trigger AI Review Bot Service
+        env:
+          BACKEND_API_URL: ${{ secrets.AI_REVIEW_BOT_API_URL }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Sending PR diff to AI Code Review Bot..."
+          # The bot analyzes the diff and posts structured feedback back to the PR
