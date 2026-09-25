@@ -41,6 +41,7 @@ app = FastAPI(
 # CORS Middleware Configuration
 origins = [
     settings.FRONTEND_URL,
+    "https://ai-code-review-3oapo894f-star-6ae2.vercel.app",
     "http://localhost:5173",
     "http://127.0.0.1:5173",
     "http://localhost:3000",
