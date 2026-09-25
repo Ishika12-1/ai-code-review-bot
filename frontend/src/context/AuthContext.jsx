@@ -77,10 +77,12 @@ export function AuthProvider({ children }) {
       const res = await authApi.getGithubUrl();
       if (res.data?.url) {
         window.location.href = res.data.url;
+        return res.data;
       }
+      throw new Error('No authorization URL returned by server.');
     } catch (err) {
       console.error('Error initiating GitHub OAuth:', err);
-      alert('GitHub OAuth is not configured yet. Please provide GITHUB_CLIENT_ID in backend .env.');
+      throw err;
     }
   };
 
@@ -90,10 +92,12 @@ export function AuthProvider({ children }) {
       const res = await authApi.getGoogleUrl();
       if (res.data?.url) {
         window.location.href = res.data.url;
+        return res.data;
       }
+      throw new Error('No authorization URL returned by server.');
     } catch (err) {
       console.error('Error initiating Google OAuth:', err);
-      alert('Google OAuth is not configured yet. Please provide GOOGLE_CLIENT_ID in backend .env.');
+      throw err;
     }
   };
 

@@ -213,8 +213,16 @@ export default function RepositoriesPage() {
 
   const handleSendFileToStudio = () => {
     if (!selectedFile || !fileContent) return;
-    // Direct user to AI Studio with pre-loaded code
-    navigate('/studio');
+
+    navigate('/studio', {
+      state: {
+        code: fileContent,
+        filename: selectedFile.path,
+        language: selectedRepo?.language || 'text',
+        repository: selectedRepo?.full_name || '',
+        branch: selectedBranch,
+      },
+    });
   };
 
   const handleReviewPR = async (prNumber) => {
@@ -348,22 +356,20 @@ export default function RepositoriesPage() {
           <div className="flex border-b border-slate-200 dark:border-dark-border text-xs font-semibold gap-4">
             <button
               onClick={() => setActiveTab('files')}
-              className={`pb-2.5 flex items-center gap-2 border-b-2 transition-all ${
-                activeTab === 'files'
-                  ? 'border-brand-600 text-brand-600 dark:text-brand-400 font-bold'
-                  : 'border-transparent text-slate-500 dark:text-dark-muted hover:text-slate-900 dark:hover:text-white'
-              }`}
+              className={`pb-2.5 flex items-center gap-2 border-b-2 transition-all ${activeTab === 'files'
+                ? 'border-brand-600 text-brand-600 dark:text-brand-400 font-bold'
+                : 'border-transparent text-slate-500 dark:text-dark-muted hover:text-slate-900 dark:hover:text-white'
+                }`}
             >
               <FileCode className="h-4 w-4" />
               <span>Files & Explorer</span>
             </button>
             <button
               onClick={() => setActiveTab('prs')}
-              className={`pb-2.5 flex items-center gap-2 border-b-2 transition-all ${
-                activeTab === 'prs'
-                  ? 'border-brand-600 text-brand-600 dark:text-brand-400 font-bold'
-                  : 'border-transparent text-slate-500 dark:text-dark-muted hover:text-slate-900 dark:hover:text-white'
-              }`}
+              className={`pb-2.5 flex items-center gap-2 border-b-2 transition-all ${activeTab === 'prs'
+                ? 'border-brand-600 text-brand-600 dark:text-brand-400 font-bold'
+                : 'border-transparent text-slate-500 dark:text-dark-muted hover:text-slate-900 dark:hover:text-white'
+                }`}
             >
               <GitPullRequest className="h-4 w-4" />
               <span>Pull Requests ({repoPRs.length})</span>
@@ -401,11 +407,10 @@ export default function RepositoriesPage() {
                         <button
                           key={idx}
                           onClick={() => (isDir ? handleNavigatePath(item.name) : handleSelectFile(item))}
-                          className={`w-full flex items-center justify-between p-2 rounded-xl text-xs text-left transition-all ${
-                            selectedFile?.path === item.path
-                              ? 'bg-brand-500/10 text-brand-600 dark:text-brand-300 font-bold border border-brand-500/20'
-                              : 'hover:bg-slate-50 dark:hover:bg-dark-hover text-slate-700 dark:text-slate-300'
-                          }`}
+                          className={`w-full flex items-center justify-between p-2 rounded-xl text-xs text-left transition-all ${selectedFile?.path === item.path
+                            ? 'bg-brand-500/10 text-brand-600 dark:text-brand-300 font-bold border border-brand-500/20'
+                            : 'hover:bg-slate-50 dark:hover:bg-dark-hover text-slate-700 dark:text-slate-300'
+                            }`}
                         >
                           <div className="flex items-center gap-2 truncate">
                             {isDir ? (

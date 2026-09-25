@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { Bot, CheckCircle2, AlertCircle, ArrowRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -10,13 +10,36 @@ export default function OAuthCallbackPage() {
   const { setAuthTokenAndUser } = useAuth();
   const [status, setStatus] = useState('processing'); // 'processing' | 'success' | 'error'
   const [errorMessage, setErrorMessage] = useState('');
+  const callbackProcessed = useRef(false);
 
   const code = searchParams.get('code');
-  const provider = searchParams.get('provider') || 'github';
+  const state = searchParams.get('state') || '';
+  const scope = searchParams.get('scope') || '';
+  const providerParam = searchParams.get('provider');
+  const providerError = searchParams.get('error_description') || searchParams.get('error');
+
+  // Automatically detect provider (Google OAuth redirects to clean URL without ?provider=google)
+  const provider =
+    providerParam ||
+    (state.startsWith('google') ? 'google' : null) ||
+    (scope.includes('google') || scope.includes('openid') || scope.includes('userinfo') ? 'google' : null) ||
+    localStorage.getItem('oauth_provider') ||
+    'github';
 
   useEffect(() => {
     const handleCallback = async () => {
+      if (callbackProcessed.current) return;
+      callbackProcessed.current = true;
+
+      if (providerError) {
+        localStorage.removeItem('oauth_provider');
+        setStatus('error');
+        setErrorMessage(`Authentication was cancelled or failed with provider: ${providerError}`);
+        return;
+      }
+
       if (!code) {
+        localStorage.removeItem('oauth_provider');
         setStatus('error');
         setErrorMessage('No authorization code was returned by the authentication provider.');
         return;
@@ -25,13 +48,14 @@ export default function OAuthCallbackPage() {
       try {
         let res;
         if (provider === 'google') {
-          res = await authApi.googleCallback({ code });
+          res = await authApi.googleCallback({ code, state });
         } else {
-          res = await authApi.githubCallback({ code });
+          res = await authApi.githubCallback({ code, state });
         }
 
         const { access_token, user } = res.data;
         setAuthTokenAndUser(access_token, user);
+        localStorage.removeItem('oauth_provider');
         setStatus('success');
 
         // Redirect after brief delay
@@ -39,6 +63,7 @@ export default function OAuthCallbackPage() {
           navigate('/dashboard');
         }, 1500);
       } catch (err) {
+        localStorage.removeItem('oauth_provider');
         console.error('OAuth Callback processing error:', err);
         setStatus('error');
         setErrorMessage(
@@ -48,7 +73,7 @@ export default function OAuthCallbackPage() {
     };
 
     handleCallback();
-  }, [code, provider, navigate, setAuthTokenAndUser]);
+  }, [code, provider, providerError, state, navigate, setAuthTokenAndUser]);
 
   return (
     <div className="min-h-[70vh] flex items-center justify-center p-4">

@@ -1,8 +1,12 @@
 from datetime import datetime
-from typing import List, Optional
+from typing import TYPE_CHECKING, List, Optional
 from sqlalchemy import String, Integer, Float, ForeignKey, DateTime, Text, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.core.database import Base
+if TYPE_CHECKING:
+    from app.models.user import User
+    from app.models.repository import Repository
+    from app.models.pull_request import PullRequest
 
 
 class Review(Base):

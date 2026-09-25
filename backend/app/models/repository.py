@@ -1,10 +1,13 @@
 from datetime import datetime
-from typing import List, Optional
+from typing import TYPE_CHECKING, List, Optional
 from sqlalchemy import String, Boolean, Integer, ForeignKey, DateTime, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.core.database import Base
 
-
+if TYPE_CHECKING:
+    from app.models.user import User
+    from app.models.pull_request import PullRequest
+    from app.models.review import Review
 class Repository(Base):
     """Connected GitHub repository model."""
     __tablename__ = "repositories"

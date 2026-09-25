@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import {
   Code2,
   Sparkles,
@@ -117,11 +118,17 @@ async def get_user_by_id(db: AsyncSession, user_id: int) -> User | None:
 
 export default function CodeStudioPage() {
   const { isAuthenticated, openAuthModal, user } = useAuth();
-
-  const [code, setCode] = useState(CODE_PRESETS[0].code);
-  const [language, setLanguage] = useState('python');
+  const location = useLocation();
+  const [code, setCode] = useState(
+    location.state?.code || CODE_PRESETS[0].code
+  );
+  const [language, setLanguage] = useState(
+    location.state?.language || 'python'
+  );
   const [isDiff, setIsDiff] = useState(false);
-  const [filename, setFilename] = useState('src/auth/login.py');
+  const [filename, setFilename] = useState(
+    location.state?.filename || 'src/auth/login.py'
+  );
   const [model, setModel] = useState('gpt-4o-mini');
   const [minSeverity, setMinSeverity] = useState('MEDIUM');
   const [loading, setLoading] = useState(false);
@@ -248,19 +255,19 @@ export default function CodeStudioPage() {
 
   const filteredFindings = reviewResult
     ? reviewResult.findings.filter((f) => {
-        if (activeFilter === 'ALL') return true;
-        return f.severity === activeFilter || f.category === activeFilter;
-      })
+      if (activeFilter === 'ALL') return true;
+      return f.severity === activeFilter || f.category === activeFilter;
+    })
     : [];
 
   const counts = reviewResult
     ? {
-        CRITICAL: reviewResult.findings.filter((f) => f.severity === 'CRITICAL').length,
-        HIGH: reviewResult.findings.filter((f) => f.severity === 'HIGH').length,
-        MEDIUM: reviewResult.findings.filter((f) => f.severity === 'MEDIUM').length,
-        LOW: reviewResult.findings.filter((f) => f.severity === 'LOW').length,
-        INFO: reviewResult.findings.filter((f) => f.severity === 'INFO').length,
-      }
+      CRITICAL: reviewResult.findings.filter((f) => f.severity === 'CRITICAL').length,
+      HIGH: reviewResult.findings.filter((f) => f.severity === 'HIGH').length,
+      MEDIUM: reviewResult.findings.filter((f) => f.severity === 'MEDIUM').length,
+      LOW: reviewResult.findings.filter((f) => f.severity === 'LOW').length,
+      INFO: reviewResult.findings.filter((f) => f.severity === 'INFO').length,
+    }
     : { CRITICAL: 0, HIGH: 0, MEDIUM: 0, LOW: 0, INFO: 0 };
 
   return (
@@ -432,13 +439,12 @@ export default function CodeStudioPage() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div
-                      className={`flex h-14 w-14 items-center justify-center rounded-2xl text-xl font-extrabold font-mono border ${
-                        reviewResult.score >= 8.5
-                          ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30'
-                          : reviewResult.score >= 7.0
+                      className={`flex h-14 w-14 items-center justify-center rounded-2xl text-xl font-extrabold font-mono border ${reviewResult.score >= 8.5
+                        ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30'
+                        : reviewResult.score >= 7.0
                           ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30'
                           : 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/30'
-                      }`}
+                        }`}
                     >
                       {reviewResult.score}
                     </div>
@@ -464,11 +470,10 @@ export default function CodeStudioPage() {
 
                     <button
                       onClick={handleSaveToAccount}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all ${
-                        saved
-                          ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30'
-                          : 'border-brand-500/30 bg-brand-500/10 text-brand-600 dark:text-brand-300 hover:bg-brand-500/20'
-                      }`}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all ${saved
+                        ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30'
+                        : 'border-brand-500/30 bg-brand-500/10 text-brand-600 dark:text-brand-300 hover:bg-brand-500/20'
+                        }`}
                     >
                       <BookmarkPlus className="h-3.5 w-3.5" />
                       <span>{saved ? 'Saved to History' : 'Save to Account'}</span>
@@ -486,22 +491,20 @@ export default function CodeStudioPage() {
                 <div className="flex flex-wrap items-center gap-1.5 pt-1">
                   <button
                     onClick={() => setActiveFilter('ALL')}
-                    className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
-                      activeFilter === 'ALL'
-                        ? 'bg-brand-600 text-white shadow-sm'
-                        : 'bg-slate-100 dark:bg-dark-surface text-slate-600 dark:text-slate-400'
-                    }`}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${activeFilter === 'ALL'
+                      ? 'bg-brand-600 text-white shadow-sm'
+                      : 'bg-slate-100 dark:bg-dark-surface text-slate-600 dark:text-slate-400'
+                      }`}
                   >
                     All ({reviewResult.findings.length})
                   </button>
                   {counts.CRITICAL > 0 && (
                     <button
                       onClick={() => setActiveFilter('CRITICAL')}
-                      className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
-                        activeFilter === 'CRITICAL'
-                          ? 'bg-rose-600 text-white'
-                          : 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20'
-                      }`}
+                      className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${activeFilter === 'CRITICAL'
+                        ? 'bg-rose-600 text-white'
+                        : 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20'
+                        }`}
                     >
                       Critical ({counts.CRITICAL})
                     </button>
@@ -509,11 +512,10 @@ export default function CodeStudioPage() {
                   {counts.HIGH > 0 && (
                     <button
                       onClick={() => setActiveFilter('HIGH')}
-                      className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
-                        activeFilter === 'HIGH'
-                          ? 'bg-orange-600 text-white'
-                          : 'bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20'
-                      }`}
+                      className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${activeFilter === 'HIGH'
+                        ? 'bg-orange-600 text-white'
+                        : 'bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20'
+                        }`}
                     >
                       High ({counts.HIGH})
                     </button>
@@ -521,11 +523,10 @@ export default function CodeStudioPage() {
                   {counts.MEDIUM > 0 && (
                     <button
                       onClick={() => setActiveFilter('MEDIUM')}
-                      className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
-                        activeFilter === 'MEDIUM'
-                          ? 'bg-amber-600 text-white'
-                          : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20'
-                      }`}
+                      className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${activeFilter === 'MEDIUM'
+                        ? 'bg-amber-600 text-white'
+                        : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20'
+                        }`}
                     >
                       Medium ({counts.MEDIUM})
                     </button>
@@ -533,11 +534,10 @@ export default function CodeStudioPage() {
                   {counts.LOW > 0 && (
                     <button
                       onClick={() => setActiveFilter('LOW')}
-                      className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
-                        activeFilter === 'LOW'
-                          ? 'bg-blue-600 text-white'
-                          : 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20'
-                      }`}
+                      className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${activeFilter === 'LOW'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20'
+                        }`}
                     >
                       Low ({counts.LOW})
                     </button>
@@ -561,17 +561,16 @@ export default function CodeStudioPage() {
                         <div className="space-y-1">
                           <div className="flex items-center gap-2">
                             <span
-                              className={`px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider border ${
-                                finding.severity === 'CRITICAL'
-                                  ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/30'
-                                  : finding.severity === 'HIGH'
+                              className={`px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider border ${finding.severity === 'CRITICAL'
+                                ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/30'
+                                : finding.severity === 'HIGH'
                                   ? 'bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/30'
                                   : finding.severity === 'MEDIUM'
-                                  ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30'
-                                  : finding.severity === 'LOW'
-                                  ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/30'
-                                  : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30'
-                              }`}
+                                    ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30'
+                                    : finding.severity === 'LOW'
+                                      ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/30'
+                                      : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30'
+                                }`}
                             >
                               {finding.severity}
                             </span>
